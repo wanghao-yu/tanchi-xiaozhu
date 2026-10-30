@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+}
+
+def signingEnvironment = [
+    ANDROID_KEYSTORE_PATH: System.getenv('ANDROID_KEYSTORE_PATH'),
+    ANDROID_KEYSTORE_PASSWORD: System.getenv('ANDROID_KEYSTORE_PASSWORD'),
+    ANDROID_KEY_ALIAS: System.getenv('ANDROID_KEY_ALIAS')
+]
+def missingSigningVariables = signingEnvironment.findAll { key, value ->
+    value == null || value.trim().isEmpty()
+}.keySet()
+def hasReleaseSigning = missingSigningVariables.isEmpty()
+
+android {
+    namespace 'com.tanchixiaozhu.game'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.tanchixiaozhu.game'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(signingEnvironment.ANDROID_KEYSTORE_PATH)
+                storePassword signingEnvironment.ANDROID_KEYSTORE_PASSWORD
+                keyAlias signingEnvironment.ANDROID_KEY_ALIAS
+                keyPassword signingEnvironment.ANDROID_KEYSTORE_PASSWORD
+                storeType 'PKCS12'
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+// Debug builds work without release credentials. A release must always be signed.
+tasks.configureEach {
+    if (name == 'preReleaseBuild') {
+        doFirst {
+            if (!hasReleaseSigning) {
+                throw new GradleException('Release signing requires environment variables: '
+                    + missingSigningVariables.join(', '))
+            }
+            if (!file(signingEnvironment.ANDROID_KEYSTORE_PATH).isFile()) {
+                throw new GradleException('ANDROID_KEYSTORE_PATH must refer to an existing keystore outside the repository.')
+            }
+        }
+    }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">贪吃小猪</string>
+    <string name="share_title">分享游戏</string>
+    <string name="no_share_app">手机上暂时没有可用的分享应用</string>
+    <string name="no_browser">手机上暂时没有可用的浏览器</string>
+</resources>
