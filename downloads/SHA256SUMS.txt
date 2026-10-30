@@ -1,0 +1,2 @@
+21ffe9cb2308add63f2094495ed48d3003f487cccec4336c45a889a15e6656c0  tanchi-xiaozhu-android-v1.0.0.apk
+e40a11474c1979b77375e1edacfb7db1dde4aa973302f7a08197c5bfc0970ff2  tanchi-xiaozhu-desktop-v1.0.0.zip

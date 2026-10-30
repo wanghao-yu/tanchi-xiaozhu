@@ -62,6 +62,7 @@ const moduleScripts = [...html.matchAll(/<script\s+type=["']module["']\s+src=["'
 if (moduleScripts.length !== 1) throw new Error('Expected exactly one app.mjs module script, with an optional cache query.');
 html = replaceOnce(html, moduleScripts[0][0], `<script>\n${javascript.replace(/<\/script/gi, '<\\/script')}\n</script>`, 'module script tag');
 html = inlineImages(html);
+html = html.replaceAll('href="./download.html"', `href="${publicUrl}download.html"`);
 
 const license = readSource('assets/ROUNDED-LICENSE.txt');
 const escapedLicense = license.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
