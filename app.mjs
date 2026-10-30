@@ -7,6 +7,9 @@ const ctx = canvas.getContext('2d');
 const avatar = new Image();
 avatar.src = './assets/face.png';
 avatar.onload = draw;
+const character = new Image();
+character.src = './assets/character-white-dress.png';
+character.onload = draw;
 let game = createGame(14);
 let foodStyle = chooseFood();
 let best = 0;
@@ -94,17 +97,6 @@ function turn(direction) {
   queueDirection(game, direction);
 }
 
-function trace(points) {
-  const p = new Path2D();
-  p.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length - 1; i++) {
-    const current = points[i], next = points[i + 1];
-    p.quadraticCurveTo(current.x, current.y, (current.x + next.x) / 2, (current.y + next.y) / 2);
-  }
-  if (points.length > 1) p.lineTo(points.at(-1).x, points.at(-1).y);
-  return p;
-}
-
 function draw() {
   if (!game || !boardWidth) return;
   const width = boardWidth, cell = width / game.size;
@@ -119,29 +111,25 @@ function draw() {
   }
   ctx.stroke();
   const points = game.snake.map(p => ({x: (p.x + .5) * cell, y: (p.y + .5) * cell}));
-  const path = trace(points);
-  const body = cell * .66;
   ctx.save();
-  ctx.lineCap = ctx.lineJoin = 'round';
-  ctx.shadowColor = '#96694033'; ctx.shadowBlur = 3; ctx.shadowOffsetY = 2;
-  ctx.lineWidth = body + 5; ctx.strokeStyle = '#e4c8a5'; ctx.stroke(path);
-  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-  ctx.setLineDash([0, cell * .17]);
-  ctx.lineWidth = body + 5; ctx.strokeStyle = '#fffdf9'; ctx.stroke(path);
-  ctx.setLineDash([]);
-  ctx.lineWidth = body + .7; ctx.strokeStyle = '#dbc8b2'; ctx.stroke(path);
-  ctx.lineWidth = body; ctx.strokeStyle = '#fffefb'; ctx.stroke(path);
-  ctx.lineWidth = body * .32; ctx.strokeStyle = '#f4eee4'; ctx.stroke(path);
-  ctx.lineWidth = body * .09; ctx.strokeStyle = '#fffdf8'; ctx.stroke(path);
-  // Soft folds stay within each connected segment as the dress grows.
+  // Soft little puffs follow the character instead of a stretched fabric tube.
+  ctx.fillStyle = '#fffaf0';
   for (let i = 1; i < points.length; i++) {
-    const point = points[i], prev = points[i - 1];
-    ctx.save(); ctx.translate(point.x, point.y);
-    ctx.rotate(Math.atan2(prev.y - point.y, prev.x - point.x));
-    ctx.beginPath(); ctx.moveTo(-cell * .16, -body * .32);
-    ctx.quadraticCurveTo(cell * .11, 0, cell * .2, body * .32);
-    ctx.strokeStyle = '#ded0bd99'; ctx.lineWidth = .75; ctx.stroke();
-    ctx.restore();
+    const p = points[i], previous = points[i - 1];
+    ctx.beginPath(); ctx.arc((p.x + previous.x) / 2, (p.y + previous.y) / 2, cell * .2, 0, Math.PI * 2); ctx.fill();
+  }
+  for (let i = points.length - 1; i >= 1; i--) {
+    const p = points[i], previous = points[i - 1];
+    const vertical = previous.x === p.x;
+    const wiggle = Math.sin(i * 1.8) * cell * .055;
+    const x = p.x + (vertical ? wiggle : 0), y = p.y + (vertical ? 0 : wiggle);
+    const radius = cell * (i === points.length - 1 ? .32 : .4);
+    ctx.shadowColor = '#a2744024'; ctx.shadowBlur = 2; ctx.shadowOffsetY = 1;
+    ctx.beginPath(); ctx.ellipse(x, y, radius, radius * .9, -.15, 0, Math.PI * 2);
+    ctx.fillStyle = '#fffdf7'; ctx.fill(); ctx.strokeStyle = '#d8bea1'; ctx.lineWidth = 1.1; ctx.stroke();
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    ctx.beginPath(); ctx.ellipse(x - radius * .2, y - radius * .25, radius * .35, radius * .16, -.3, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff'; ctx.fill();
   }
   ctx.restore();
 
@@ -151,23 +139,19 @@ function draw() {
   }
 
   const head = points[0];
-  ctx.save(); ctx.translate(head.x, head.y);
-  // A small collar and caramel bow keep the photo head tied to the white dress.
-  ctx.fillStyle = '#fffef9'; ctx.strokeStyle = '#d6b998'; ctx.lineWidth = .7;
-  for (const sign of [-1, 1]) {
-    ctx.beginPath(); ctx.ellipse(sign * cell * .2, cell * .64, cell * .22, cell * .14, sign * -.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  }
-  ctx.fillStyle = '#c9a178';
-  for (const sign of [-1, 1]) {
-    ctx.beginPath(); ctx.ellipse(sign * cell * .15, cell * .87, cell * .17, cell * .085, sign * .4, 0, Math.PI * 2); ctx.fill();
-  }
-  ctx.beginPath(); ctx.arc(0, cell * .87, cell * .06, 0, Math.PI * 2); ctx.fill();
-  if (avatar.complete && avatar.naturalWidth) {
+  ctx.save();
+  if (character.complete && character.naturalWidth) {
+    const spriteWidth = cell * 2.2;
+    const spriteHeight = spriteWidth * character.naturalHeight / character.naturalWidth;
+    const x = Math.max(2, Math.min(width - spriteWidth - 2, head.x - spriteWidth / 2));
+    const y = Math.max(2, Math.min(width - spriteHeight - 2, head.y - spriteHeight / 2));
+    ctx.drawImage(character, x, y, spriteWidth, spriteHeight);
+  } else if (avatar.complete && avatar.naturalWidth) {
     const size = cell * 1.98;
     ctx.shadowColor = '#73502a30'; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1;
-    ctx.drawImage(avatar, -size / 2, -size / 2 - cell * .2, size, size);
+    ctx.drawImage(avatar, head.x - size / 2, head.y - size / 2 - cell * .2, size, size);
   } else {
-    ctx.beginPath(); ctx.arc(0, -cell * .15, cell * .54, 0, Math.PI * 2); ctx.fillStyle = '#e0b286'; ctx.fill();
+    ctx.beginPath(); ctx.arc(head.x, head.y - cell * .15, cell * .54, 0, Math.PI * 2); ctx.fillStyle = '#e0b286'; ctx.fill();
   }
   ctx.restore();
   const speech = $('chatter');
@@ -176,9 +160,9 @@ function draw() {
     speech.style.maxWidth = `${Math.min(174, width * .44)}px`;
     const bubbleWidth = speech.offsetWidth, bubbleHeight = speech.offsetHeight;
     const right = head.x < width * .48;
-    const x = right ? head.x + cell * .7 : head.x - cell * .7 - bubbleWidth;
+    const x = right ? head.x + cell * .95 : head.x - cell * .95 - bubbleWidth;
     speech.style.left = `${Math.max(8, Math.min(width - bubbleWidth - 8, x))}px`;
-    speech.style.top = `${Math.max(8, Math.min(width - bubbleHeight - 8, head.y - bubbleHeight - cell * .55))}px`;
+    speech.style.top = `${Math.max(8, Math.min(width - bubbleHeight - 8, head.y - bubbleHeight - cell * .8))}px`;
     speech.dataset.side = right ? 'right' : 'left';
   }
 }
