@@ -1,0 +1,19 @@
+{
+  "name": "贪吃小猪",
+  "short_name": "贪吃小猪",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "lang": "zh-CN",
+  "background_color": "#f6eee2",
+  "theme_color": "#f6eee2",
+  "icons": [
+    {
+      "src": "./assets/app-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

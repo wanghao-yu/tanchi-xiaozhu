@@ -4,11 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f5ebdc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="贪吃小猪">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="description" content="贪吃小猪：滑动控制方向，随机吃美食得分，每局三次复活。打开就能玩的手机小游戏。">
   <title>贪吃小猪</title>
   <link rel="icon" href="./assets/face.png" type="image/png">
+  <link rel="apple-touch-icon" href="./assets/app-icon.png" data-online-only>
+  <link rel="manifest" href="./manifest.webmanifest" data-online-only>
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./app.mjs?v=cartoon-dress-1"></script>
+  <script type="module" src="./install.mjs?v=pwa-1" data-online-only></script>
 </head>
 <body>
   <main class="game">
@@ -51,6 +57,7 @@
       <span aria-hidden="true">·</span>
       <a href="./download.html" class="text-button">安装下载</a>
     </footer>
+    <p id="offline-status" class="offline-status" role="status" hidden></p>
     <p id="toast" class="toast" role="status" hidden></p>
     <dialog id="share-dialog">
       <h2>把链接发给朋友</h2>

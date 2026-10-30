@@ -12,3 +12,5 @@ h2{font-size:27px;font-weight:900}.message p{font-size:17px}.primary{font-size:2
 .speech[hidden]{display:none}.speech::after{content:"";position:absolute;bottom:-7px;left:17px;width:11px;height:11px;transform:rotate(45deg);background:#fffdf4;border-right:2px solid #d0ad86;border-bottom:2px solid #d0ad86}
 .speech[data-side=left]::after{left:auto;right:17px}.overlay{z-index:2}
 footer{gap:8px;flex-wrap:wrap}a.text-button{display:inline-flex;align-items:center;text-decoration:none}
+.offline-status{text-align:center;font-size:17px;line-height:1.6;color:#98714c;margin:9px 0}.offline-status[hidden]{display:none}
+@media(display-mode:standalone){body{padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}}

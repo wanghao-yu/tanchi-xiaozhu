@@ -57,6 +57,8 @@ if (/^\s*(?:import|export)\s/m.test(javascript)) {
 new Function(javascript); // Parse without running browser code.
 
 let html = readSource('index.html');
+html = html.replace(/<link\b[^>]*\bdata-online-only\b[^>]*>/g, '');
+html = html.replace(/<script\b[^>]*\bdata-online-only\b[^>]*>[\s\S]*?<\/script>/g, '');
 html = replaceOnce(html, '<link rel="stylesheet" href="./style.css">', `<style>\n${css}\n</style>`, 'stylesheet link');
 const moduleScripts = [...html.matchAll(/<script\s+type=["']module["']\s+src=["']\.\/app\.mjs(?:\?[^"']*)?["']\s*><\/script>/g)];
 if (moduleScripts.length !== 1) throw new Error('Expected exactly one app.mjs module script, with an optional cache query.');
